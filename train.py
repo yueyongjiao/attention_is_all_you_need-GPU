@@ -225,7 +225,8 @@ def main():
 
     #========= Loading Dataset =========#
     data = torch.load(opt.data)
-    opt.max_token_seq_len = data['settings'].max_token_seq_len
+    opt.src_seq_len = data['settings'].src_seq_len
+    opt.tgt_seq_len = data['settings'].tgt_seq_len
 
     training_data, validation_data = prepare_dataloaders(data, opt)
 
@@ -243,7 +244,8 @@ def main():
     transformer = Transformer(
         opt.src_vocab_size,
         opt.tgt_vocab_size,
-        opt.max_token_seq_len,
+        opt.src_seq_len,
+        opt.tgt_seq_len,
         tgt_emb_prj_weight_sharing=opt.proj_share_weight,
         emb_src_tgt_weight_sharing=opt.embs_share_weight,
         d_k=opt.d_k,

@@ -74,20 +74,22 @@ def main():
     parser.add_argument('-valid_src', required=True)
     parser.add_argument('-valid_tgt', required=True)
     parser.add_argument('-save_data', required=True)
-    parser.add_argument('-max_len', '--max_word_seq_len', type=int, default=50)
+    parser.add_argument('-src_len', '--src_len', type=int, default=500)
+    parser.add_argument('-tgt_len', '--tgg_len', type=int, default=50)
     parser.add_argument('-min_word_count', type=int, default=5)
     parser.add_argument('-keep_case', action='store_true')
     parser.add_argument('-share_vocab', action='store_true')
     parser.add_argument('-vocab', default=None)
 
     opt = parser.parse_args()
-    opt.max_token_seq_len = opt.max_word_seq_len + 2 # include the <s> and </s>
+    opt.src_len = opt.src_len + 2 # include the <s> and </s>
+    opt.tgt_len = opt.tgt_len + 2
 
     # Training set
     train_src_word_insts = read_instances_from_file(
-        opt.train_src, opt.max_word_seq_len, opt.keep_case)
+        opt.train_src, opt.src_len, opt.keep_case)
     train_tgt_word_insts = read_instances_from_file(
-        opt.train_tgt, opt.max_word_seq_len, opt.keep_case)
+        opt.train_tgt, opt.tgt_len, opt.keep_case)
 
     if len(train_src_word_insts) != len(train_tgt_word_insts):
         print('[Warning] The training instance count is not equal.')
@@ -101,9 +103,9 @@ def main():
 
     # Validation set
     valid_src_word_insts = read_instances_from_file(
-        opt.valid_src, opt.max_word_seq_len, opt.keep_case)
+        opt.valid_src, opt.src_len, opt.keep_case)
     valid_tgt_word_insts = read_instances_from_file(
-        opt.valid_tgt, opt.max_word_seq_len, opt.keep_case)
+        opt.valid_tgt, opt.tgt_len, opt.keep_case)
 
     if len(valid_src_word_insts) != len(valid_tgt_word_insts):
         print('[Warning] The validation instance count is not equal.')
