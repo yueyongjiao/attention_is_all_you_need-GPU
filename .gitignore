@@ -9,6 +9,7 @@ multi-bleu.perl
 data/
 EventTeller/
 # Byte-compiled / optimized / DLL files
+transformer/__pycache__/*.pyc
 __pycache__/
 *.py[cod]
 *$py.class
