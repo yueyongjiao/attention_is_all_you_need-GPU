@@ -11,6 +11,7 @@ EventTeller/
 # Byte-compiled / optimized / DLL files
 transformer/__pycache__/*.pyc
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 
