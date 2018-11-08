@@ -58,7 +58,10 @@ class MultiHeadAttention(nn.Module):
 
         output = self.dropout(self.fc(output))
         output = self.layer_norm(output + residual)
-
+        #print("SubLayer-------------------------------------------------")
+        #print(output)
+        #print(output.size())
+        #print(output.type())
         return output, attn
 
 class PositionwiseFeedForward(nn.Module):

@@ -56,15 +56,15 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     ''' Epoch operation in training phase'''
 
     model.train()
-
+    torch.cuda.synchronize()
     total_loss = 0
     n_word_total = 0
     n_word_correct = 0
 
     for batch in tqdm(
-            training_data, mininterval=2,
+            training_data, mininterval=10,
             desc='  - (Training)   ', leave=False):
-
+    
         # prepare data
         src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         gold = tgt_seq[:, 1:]
@@ -72,7 +72,9 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
         # forward
         optimizer.zero_grad()
         pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
-
+        #print(pred)
+        #print(pred.type())
+        #print(pred.size())
         # backward
         loss, n_correct = cal_performance(pred, gold, smoothing=smoothing)
         loss.backward()
@@ -239,8 +241,9 @@ def main():
             'The src/tgt word2idx table are different but asked to share word embedding.'
 
     print(opt)
-
+    
     device = torch.device('cuda' if opt.cuda else 'cpu')
+    print(str(device))
     transformer = Transformer(
         opt.src_vocab_size,
         opt.tgt_vocab_size,
