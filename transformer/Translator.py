@@ -17,11 +17,12 @@ class Translator(object):
         checkpoint = torch.load(opt.model)
         model_opt = checkpoint['settings']
         self.model_opt = model_opt
-
+        print("src_vocab_size: %d ; tgt_vocab_size: %d ;max_token_src_seq_len:%d ; max_token_tgt_seq_len: %d " %(model_opt.src_vocab_size,model_opt.tgt_vocab_size,model_opt.max_token_src_seq_len,model_opt.max_token_tgt_seq_len))
         model = Transformer(
             model_opt.src_vocab_size,
             model_opt.tgt_vocab_size,
-            model_opt.max_token_seq_len,
+            model_opt.max_token_src_seq_len,
+            model_opt.max_token_tgt_seq_len,
             tgt_emb_prj_weight_sharing=model_opt.proj_share_weight,
             emb_src_tgt_weight_sharing=model_opt.embs_share_weight,
             d_k=model_opt.d_k,
@@ -45,6 +46,7 @@ class Translator(object):
 
     def translate_batch(self, src_seq, src_pos):
         ''' Translation work in one batch '''
+        print(src_seq)
 
         def get_inst_idx_to_tensor_position_map(inst_idx_list):
             ''' Indicate the position of an instance in a tensor. '''
@@ -110,7 +112,7 @@ class Translator(object):
                 return active_inst_idx_list
 
             n_active_inst = len(inst_idx_to_position_map)
-
+            print("n_activate_inst: %d "% n_active_inst)
             dec_seq = prepare_beam_dec_seq(inst_dec_beams, len_dec_seq)
             dec_pos = prepare_beam_dec_pos(len_dec_seq, n_active_inst, n_bm)
             word_prob = predict_word(dec_seq, dec_pos, src_seq, enc_output, n_active_inst, n_bm)
@@ -150,7 +152,7 @@ class Translator(object):
             inst_idx_to_position_map = get_inst_idx_to_tensor_position_map(active_inst_idx_list)
 
             #-- Decode
-            for len_dec_seq in range(1, self.model_opt.max_token_seq_len + 1):
+            for len_dec_seq in range(1, self.model_opt.max_token_tgt_seq_len + 1):
 
                 active_inst_idx_list = beam_decode_step(
                     inst_dec_beams, len_dec_seq, src_seq, src_enc, inst_idx_to_position_map, n_bm)
