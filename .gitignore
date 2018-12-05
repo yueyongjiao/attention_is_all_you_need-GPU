@@ -8,6 +8,8 @@ multi-bleu.perl
 .DS_Store
 data/
 EventTeller/
+lcsts/
+LCSTS/
 log/
 # Byte-compiled / optimized / DLL files
 __pycache__/

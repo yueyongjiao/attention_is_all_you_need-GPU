@@ -56,15 +56,15 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
     ''' Epoch operation in training phase'''
 
     model.train()
-
+    #torch.cuda.synchronize()
     total_loss = 0
     n_word_total = 0
     n_word_correct = 0
 
     for batch in tqdm(
-            training_data, mininterval=2,
+            training_data, mininterval=10,
             desc='  - (Training)   ', leave=False):
-
+    
         # prepare data
         src_seq, src_pos, tgt_seq, tgt_pos = map(lambda x: x.to(device), batch)
         gold = tgt_seq[:, 1:]
@@ -72,7 +72,9 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
         # forward
         optimizer.zero_grad()
         pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
-
+        #print(pred)
+        #print(pred.type())
+        #print(pred.size())
         # backward
         loss, n_correct = cal_performance(pred, gold, smoothing=smoothing)
         loss.backward()
@@ -175,7 +177,7 @@ def train(model, training_data, validation_data, optimizer, device, opt):
                 model_name = opt.save_model + str(epoch_i) + '_accu_{accu:3.3f}.chkpt'.format(accu=100*valid_accu)
                 torch.save(checkpoint, model_name)
             elif opt.save_mode == 'best':
-                model_name = opt.save_model + '.chkpt'
+                model_name = opt.save_model + str(epoch_i) + '_.chkpt'
                 if valid_accu >= max(valid_accus):
                     torch.save(checkpoint, model_name)
                     print('    - [Info] The checkpoint file has been updated.')
@@ -200,7 +202,7 @@ def main():
 
     #parser.add_argument('-d_word_vec', type=int, default=512)
     parser.add_argument('-d_model', type=int, default=512)
-    parser.add_argument('-d_inner_hid', type=int, default=2048)
+    parser.add_argument('-d_inner_hid', type=int, default=1024)
     parser.add_argument('-d_k', type=int, default=64)
     parser.add_argument('-d_v', type=int, default=64)
 
@@ -225,8 +227,8 @@ def main():
 
     #========= Loading Dataset =========#
     data = torch.load(opt.data)
-    opt.max_token_src_seq_len = data['settings'].max_token_src_seq_len
-    opt.max_token_tgt_seq_len = data['settings'].max_token_tgt_seq_len
+    opt.max_src_seq_len = data['settings'].max_src_seq_len
+    opt.max_tgt_seq_len = data['settings'].max_tgt_seq_len
 
     training_data, validation_data = prepare_dataloaders(data, opt)
 
@@ -239,13 +241,14 @@ def main():
             'The src/tgt word2idx table are different but asked to share word embedding.'
 
     print(opt)
-
+    
     device = torch.device('cuda' if opt.cuda else 'cpu')
+    print(str(device))
     transformer = Transformer(
         opt.src_vocab_size,
         opt.tgt_vocab_size,
-        opt.max_token_src_seq_len,
-        opt.max_token_tgt_seq_len,
+        opt.max_src_seq_len,
+        opt.max_tgt_seq_len,
         tgt_emb_prj_weight_sharing=opt.proj_share_weight,
         emb_src_tgt_weight_sharing=opt.embs_share_weight,
         d_k=opt.d_k,
@@ -274,7 +277,7 @@ def prepare_dataloaders(data, opt):
             tgt_word2idx=data['dict']['tgt'],
             src_insts=data['train']['src'],
             tgt_insts=data['train']['tgt']),
-        num_workers=2,
+        num_workers=0,
         batch_size=opt.batch_size,
         collate_fn=paired_collate_fn,
         shuffle=True)
@@ -285,7 +288,7 @@ def prepare_dataloaders(data, opt):
             tgt_word2idx=data['dict']['tgt'],
             src_insts=data['valid']['src'],
             tgt_insts=data['valid']['tgt']),
-        num_workers=2,
+        num_workers=0,
         batch_size=opt.batch_size,
         collate_fn=paired_collate_fn)
     return train_loader, valid_loader

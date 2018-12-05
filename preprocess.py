@@ -74,16 +74,16 @@ def main():
     parser.add_argument('-valid_src', required=True)
     parser.add_argument('-valid_tgt', required=True)
     parser.add_argument('-save_data', required=True)
-    parser.add_argument('-src_len', '--max_src_seq_len', type=int, default=500)
-    parser.add_argument('-tgt_len', '--max_tgt_seq_len', type=int, default=50)
+    parser.add_argument('-src_len', '--max_src_seq_len', type=int, default=40)
+    parser.add_argument('-tgt_len', '--max_tgt_seq_len', type=int, default=40)
     parser.add_argument('-min_word_count', type=int, default=5)
     parser.add_argument('-keep_case', action='store_true')
     parser.add_argument('-share_vocab', action='store_true')
     parser.add_argument('-vocab', default=None)
 
     opt = parser.parse_args()
-    opt.src_len = opt.max_src_seq_len + 2 # include the <s> and </s>
-    opt.tgt_len = opt.max_tgt_seq_len + 2
+    opt.max_src_seq_len = opt.max_src_seq_len + 2 # include the <s> and </s>
+    opt.max_tgt_seq_len = opt.max_tgt_seq_len + 2
 
     # Training set
     train_src_word_insts = read_instances_from_file(
