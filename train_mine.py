@@ -72,7 +72,8 @@ def train_epoch(model, training_data, optimizer, device, smoothing):
         # forward
         optimizer.zero_grad()
         pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
-        #print(pred)
+        #print("train: pred.size() ", pred.size())
+        #print(pred[1][2])
         #print(pred.type())
         #print(pred.size())
         # backward
@@ -114,6 +115,8 @@ def eval_epoch(model, validation_data, device):
 
             # forward
             pred = model(src_seq, src_pos, tgt_seq, tgt_pos)
+            #print("eval: pred.size() : " ,pred.size())
+            #print(pred[1][2])
             loss, n_correct = cal_performance(pred, gold, smoothing=False)
 
             # note keeping
@@ -202,7 +205,7 @@ def main():
 
     #parser.add_argument('-d_word_vec', type=int, default=512)
     parser.add_argument('-d_model', type=int, default=512)
-    parser.add_argument('-d_inner_hid', type=int, default=1024)
+    parser.add_argument('-d_inner_hid', type=int, default=2048)
     parser.add_argument('-d_k', type=int, default=64)
     parser.add_argument('-d_v', type=int, default=64)
 

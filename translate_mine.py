@@ -57,10 +57,16 @@ def main():
     translator = Translator(opt)
 
     with open(opt.output, 'w') as f:
+        i = 0
         for batch in tqdm(test_loader, mininterval=2, desc='  - (Test)', leave=False):
+            print(i,"--------------------------------------------------------------------")
+            i = i+1
             all_hyp, all_scores = translator.translate_batch(*batch)
             for idx_seqs in all_hyp:
                 for idx_seq in idx_seqs:
+                    print(idx_seq)
+                    #for idx1 in idx_seq:
+                    #    print("idx = %d , word = %s" % (idx1, test_loader.dataset.tgt_idx2word[idx1]))
                     pred_line = ' '.join([test_loader.dataset.tgt_idx2word[idx] for idx in idx_seq])
                     f.write(pred_line + '\n')
     print('[Info] Finished.')

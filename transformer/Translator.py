@@ -98,6 +98,7 @@ class Translator(object):
                 dec_output, *_ = self.model.decoder(dec_seq, dec_pos, src_seq, enc_output)
                 dec_output = dec_output[:, -1, :]  # Pick the last step: (bh * bm) * d_h
                 word_prob = F.log_softmax(self.model.tgt_word_prj(dec_output), dim=1)
+                #word_prob = self.model.word_prob_prj(self.model.tgt_word_prj(dec_output)) # add_mine
                 word_prob = word_prob.view(n_active_inst, n_bm, -1)
 
                 return word_prob
@@ -136,13 +137,32 @@ class Translator(object):
             #-- Encode
             src_seq, src_pos = src_seq.to(self.device), src_pos.to(self.device)
             src_enc, *_ = self.model.encoder(src_seq, src_pos)
-
+            print("---------------------------")
+            print(src_seq.size())
+            print(src_enc.size())
+            print(src_seq[0])
+            print("---------------------------")
+            #print(src_enc[0][1]==src_enc[0][2])
+            print(src_enc[0][3])
+            #print(src_enc[0][2])
+            #print(src_enc[0][10])
+            #print(src_enc[0]==src_enc[1])
+            flag = True
+            for i in range(0,len(src_enc[0][1])):
+                flag = flag & (src_enc[0][0][i].item()==src_enc[0][1][i].item())
+            print(flag)
+            #print(src_enc[0][1])
+            #print(src_enc[0][2])
+            #print(src_seq[1])
             #-- Repeat data for beam search
             n_bm = self.opt.beam_size
             n_inst, len_s, d_h = src_enc.size()
             src_seq = src_seq.repeat(1, n_bm).view(n_inst * n_bm, len_s)
             src_enc = src_enc.repeat(1, n_bm, 1).view(n_inst * n_bm, len_s, d_h)
-
+            print("==============================")
+            print(src_seq.size())
+            print(src_enc.size())
+            print("==============================")
             #-- Prepare beams
             inst_dec_beams = [Beam(n_bm, device=self.device) for _ in range(n_inst)]
 
@@ -151,6 +171,7 @@ class Translator(object):
             inst_idx_to_position_map = get_inst_idx_to_tensor_position_map(active_inst_idx_list)
 
             #-- Decode
+            print(self.model_opt.max_tgt_seq_len)
             for len_dec_seq in range(1, self.model_opt.max_tgt_seq_len + 1):
 
                 active_inst_idx_list = beam_decode_step(

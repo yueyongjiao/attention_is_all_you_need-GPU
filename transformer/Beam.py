@@ -52,7 +52,7 @@ class Beam():
 
         flat_beam_lk = beam_lk.view(-1)
 
-        best_scores, best_scores_id = flat_beam_lk.topk(self.size, 0, True, True) # 1st sort
+        #best_scores, best_scores_id = flat_beam_lk.topk(self.size, 0, True, True) # 1st sort
         best_scores, best_scores_id = flat_beam_lk.topk(self.size, 0, True, True) # 2nd sort
 
         self.all_scores.append(self.scores)
@@ -78,7 +78,8 @@ class Beam():
     def get_the_best_score_and_idx(self):
         "Get the score of the best in the beam."
         scores, ids = self.sort_scores()
-        return scores[1], ids[1]
+        #return scores[1], ids[1]
+        return scores[0], ids[0]
 
     def get_tentative_hypothesis(self):
         "Get the decoded sequence for the current timestep."

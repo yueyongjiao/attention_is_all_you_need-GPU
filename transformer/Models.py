@@ -164,10 +164,7 @@ class Transformer(nn.Module):
             emb_src_tgt_weight_sharing=True):
 
         super().__init__()
-        print("=============================")
-        print(len_src_seq)
-        print(len_tgt_seq)
-        print("============================")
+        print("(len_src_seq,len_tgt_seq):(%d,%d)" % (len_src_seq,len_tgt_seq))
         self.encoder = Encoder(
             n_src_vocab=n_src_vocab, len_max_seq=len_src_seq,
             d_word_vec=d_word_vec, d_model=d_model, d_inner=d_inner,
@@ -204,6 +201,10 @@ class Transformer(nn.Module):
 
         tgt_seq, tgt_pos = tgt_seq[:, :-1], tgt_pos[:, :-1]
         enc_output, *_ = self.encoder(src_seq, src_pos)
+        #print("enc_output.size() : " , enc_output.size())
+        #print(enc_output[0][1])
+        #print(enc_output[0][2])
+        #print(enc_output[0][10])
         dec_output, *_ = self.decoder(tgt_seq, tgt_pos, src_seq, enc_output)
         seq_logit = self.tgt_word_prj(dec_output) * self.x_logit_scale
 
